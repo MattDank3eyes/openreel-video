@@ -1,7 +1,18 @@
 import type { ExportProgress } from "../export/types";
 
-const FFMPEG_CORE_BASE_URL = "https://unpkg.com/@ffmpeg/core@0.12.6/dist/esm";
 const FFMPEG_DOWNLOAD_ATTEMPTS = 3;
+
+let ffmpegCoreBaseUrl = "/ffmpeg";
+
+/** Same-origin ffmpeg core directory (no trailing slash). The editor points this at its Vite base. */
+export function setFfmpegCoreBaseUrl(url: string): void {
+  const trimmed = url.trim().replace(/\/$/, "");
+  if (trimmed) ffmpegCoreBaseUrl = trimmed;
+}
+
+export function getFfmpegCoreBaseUrl(): string {
+  return ffmpegCoreBaseUrl;
+}
 
 /**
  * Downloads one ffmpeg core file. A CDN can answer 200 and then cut the body short (seen on CI: a 26.9 MB wasm
@@ -12,7 +23,7 @@ async function fetchCoreFile(filename: string, signal: AbortSignal): Promise<Arr
   let lastError: unknown;
   for (let attempt = 1; attempt <= FFMPEG_DOWNLOAD_ATTEMPTS; attempt++) {
     try {
-      const response = await fetch(`${FFMPEG_CORE_BASE_URL}/${filename}`, { signal, ...(attempt > 1 ? { cache: "reload" as const } : {}) });
+      const response = await fetch(`${ffmpegCoreBaseUrl}/${filename}`, { signal, ...(attempt > 1 ? { cache: "reload" as const } : {}) });
       if (!response.ok) throw new Error(`FFmpeg download failed (${response.status}): ${filename}`);
       const bytes = await response.arrayBuffer();
       const expected = Number(response.headers?.get("content-length"));
