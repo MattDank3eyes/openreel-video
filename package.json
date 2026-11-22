@@ -12,7 +12,7 @@
     "preview": "pnpm --filter @obstcut/editor preview",
     "test": "pnpm -r test:run",
     "test:watch": "pnpm -r test",
-    "lint": "pnpm -r lint",
+    "lint": "pnpm -r --if-present lint",
     "check:mobile-offline": "node scripts/check-mobile-offline.mjs",
     "check:retired-cloud-gpu": "node scripts/check-retired-cloud-gpu.mjs",
     "typecheck": "pnpm -r typecheck",
