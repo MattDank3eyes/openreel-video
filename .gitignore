@@ -70,6 +70,7 @@ apps/desktop/resources/rigging/blender/
 # Desktop electron-builder output
 apps/desktop/release/
 apps/desktop/renderer/
+apps/obstcut/public/models/
 
 # Desktop electron-builder config lives under build/ which the global build/ rule ignores
 !apps/desktop/build/

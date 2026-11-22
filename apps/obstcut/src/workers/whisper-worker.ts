@@ -10,8 +10,12 @@ self.onmessage = (event: MessageEvent<{ audio: Float32Array; sampleRate: number 
   void (async () => {
     try {
       const { env, pipeline } = await import("@huggingface/transformers");
+      const modelBase = new URL("../models/", self.location.href);
       env.allowLocalModels = false;
-      self.postMessage({ status: "Downloading the speech model" });
+      env.allowRemoteModels = true;
+      env.remoteHost = modelBase.href;
+      env.remotePathTemplate = "{model}/";
+      self.postMessage({ status: "Loading the speech model" });
       const transcriber = await pipeline("automatic-speech-recognition", "onnx-community/whisper-tiny", {
         dtype: "q4",
       });

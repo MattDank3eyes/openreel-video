@@ -13,6 +13,7 @@ import {
   findClip,
   moveClip,
   setAutoDuck,
+  trimClip,
   setNoiseRemoval,
   splitClip,
   timelineDuration,
@@ -73,7 +74,9 @@ export function App() {
     const canvas = canvasRef.current;
     const player = playerRef.current;
     if (!canvas || !player || playing) return;
-    void player.draw(project, time, canvas);
+    void player.draw(project, time, canvas).catch((error: unknown) => {
+      setStatus(error instanceof Error ? error.message : "Preview failed.");
+    });
   }, [project, time, playing]);
 
   useEffect(() => () => {
@@ -148,7 +151,7 @@ export function App() {
       link.href = url;
       link.download = `${project.name.replace(/[^\w.-]+/g, "-") || "obstcut"}.mp4`;
       link.click();
-      URL.revokeObjectURL(url);
+      window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
       setStatus("Export downloaded.");
     } catch (error) {
       setStatus(error instanceof Error ? error.message : "Export failed.");
@@ -228,6 +231,7 @@ export function App() {
         onSelect={(clipId) => { stop(); setSelectedId(clipId); }}
         onSeek={(next) => { stop(); setTime(next); }}
         onMove={(clipId, start) => setProject(moveClip(project, clipId, start))}
+        onTrim={(clipId, edge, at) => setProject(trimClip(project, clipId, edge, at))}
       />
       <footer className="statusbar">{status}</footer>
       {about && (

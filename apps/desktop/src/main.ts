@@ -1,4 +1,5 @@
-import { app, BrowserWindow, dialog, Menu } from "electron";
+import { app, BrowserWindow, dialog, Menu, session } from "electron";
+import { mkdirSync } from "node:fs";
 import path from "node:path";
 import { PRODUCT_NAME } from "./brand";
 
@@ -32,6 +33,12 @@ function createWindow(): void {
 app.setName(PRODUCT_NAME);
 
 void app.whenReady().then(() => {
+  session.defaultSession.on("will-download", (_event, item) => {
+    const dir = app.getPath("downloads");
+    mkdirSync(dir, { recursive: true });
+    const target = path.join(dir, item.getFilename() || "OBSTcut.mp4");
+    item.setSavePath(target);
+  });
   app.setAboutPanelOptions({
     applicationName: PRODUCT_NAME,
     applicationVersion: app.getVersion(),

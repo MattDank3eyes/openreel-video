@@ -120,6 +120,8 @@ canvas {
   height: 28px;
 }
 
+.timeline-ruler { display: grid; grid-template-columns: 92px 1fr; }
+.ruler-lane, .track-lane { position: relative; height: 100%; }
 .track { height: 52px; display: grid; grid-template-columns: 92px 1fr; }
 
 .track-name {
@@ -137,10 +139,11 @@ canvas {
 .playhead {
   position: absolute;
   top: 0;
-  bottom: -160px;
+  height: 220px;
   width: 2px;
   background: #e7a34b;
   pointer-events: none;
+  z-index: 2;
 }
 
 .clip {
@@ -159,6 +162,16 @@ canvas {
 .track:nth-child(3) .clip { background: #4a3b2a; }
 .track:nth-child(4) .clip { background: #3a3348; }
 .clip.selected { outline: 2px solid #e7a34b; }
+.clip { display: flex; align-items: center; gap: 4px; padding: 0; }
+.clip-name { flex: 1; overflow: hidden; text-overflow: ellipsis; padding: 0 0.2rem; }
+.trim {
+  width: 8px;
+  align-self: stretch;
+  border-radius: 8px 0 0 8px;
+  background: rgba(255, 248, 234, 0.35);
+  cursor: ew-resize;
+}
+.trim.end { border-radius: 0 8px 8px 0; }
 
 .dialog-back {
   position: fixed;

@@ -10,6 +10,7 @@ import {
   duckSettings,
   moveClip,
   resetIds,
+  trimClip,
   setAutoDuck,
   setCaptions,
   setNoiseRemoval,
@@ -42,6 +43,17 @@ describe("timeline", () => {
     expect(project.timeline.tracks[0].clips[1].startTime).toBe(6);
     project = deleteClip(project, clip.id);
     expect(project.timeline.tracks[0].clips).toHaveLength(1);
+  });
+
+  it("trims the start and the end", () => {
+    let project = addMediaClip(createProject(), { file, duration: 10, width: 1280, height: 720, kind: "video" }, "video");
+    const clip = project.timeline.tracks[0].clips[0];
+    project = trimClip(project, clip.id, "start", 1);
+    project = trimClip(project, clip.id, "end", 8);
+    const trimmed = project.timeline.tracks[0].clips[0];
+    expect(trimmed.startTime).toBeCloseTo(1, 2);
+    expect(trimmed.startTime + trimmed.duration).toBeCloseTo(8, 2);
+    expect(trimmed.inPoint).toBeCloseTo(1, 2);
   });
 });
 

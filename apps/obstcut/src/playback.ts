@@ -20,13 +20,9 @@ export class PreviewPlayer {
     ctx.fillStyle = "#120e0b";
     ctx.fillRect(0, 0, width, height);
     if (timelineDuration(project) <= 0) return;
-    try {
-      const frame = await this.video.renderFrame(project, time, width, height);
-      ctx.drawImage(frame.image, 0, 0, width, height);
-      frame.image.close();
-    } catch (error) {
-      console.warn("[obstcut] frame", error);
-    }
+    const frame = await this.video.renderFrame(project, time, width, height);
+    ctx.drawImage(frame.image, 0, 0, width, height);
+    frame.image.close();
     drawWordCaptions(ctx, project.timeline.subtitles, time, width, height);
   }
 

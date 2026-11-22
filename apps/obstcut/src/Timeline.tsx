@@ -11,9 +11,10 @@ interface TimelineProps {
   readonly onSelect: (clipId: string) => void;
   readonly onSeek: (time: number) => void;
   readonly onMove: (clipId: string, startTime: number) => void;
+  readonly onTrim: (clipId: string, edge: "start" | "end", time: number) => void;
 }
 
-export function Timeline({ project, time, selectedId, onSelect, onSeek, onMove }: TimelineProps) {
+export function Timeline({ project, time, selectedId, onSelect, onSeek, onMove, onTrim }: TimelineProps) {
   const scroller = useRef<HTMLDivElement>(null);
   const width = Math.max(960, (project.timeline.duration + 8) * PIXELS_PER_SECOND);
 
@@ -25,8 +26,11 @@ export function Timeline({ project, time, selectedId, onSelect, onSeek, onMove }
 
   return (
     <div className="timeline" ref={scroller}>
-      <div className="timeline-ruler" style={{ width }} onPointerDown={seekFromEvent}>
-        <div className="playhead" style={{ left: time * PIXELS_PER_SECOND }} />
+      <div className="timeline-ruler" style={{ width }}>
+        <span className="track-name" />
+        <div className="ruler-lane" onPointerDown={seekFromEvent}>
+          <div className="playhead" style={{ left: time * PIXELS_PER_SECOND }} />
+        </div>
       </div>
       {project.timeline.tracks.map((track) => (
         <div className="track" key={track.id} style={{ width }}>
@@ -39,8 +43,13 @@ export function Timeline({ project, time, selectedId, onSelect, onSeek, onMove }
                   key={clip.id}
                   type="button"
                   className={clip.id === selectedId ? "clip selected" : "clip"}
-                  style={{ left: clip.startTime * PIXELS_PER_SECOND, width: Math.max(12, clip.duration * PIXELS_PER_SECOND) }}
+                  data-start={clip.startTime}
+                  data-duration={clip.duration}
+                  data-track={track.id}
+                  aria-label={`${media?.name ?? track.name} clip`}
+                  style={{ left: clip.startTime * PIXELS_PER_SECOND, width: Math.max(28, clip.duration * PIXELS_PER_SECOND) }}
                   onPointerDown={(event) => {
+                    if ((event.target as HTMLElement).dataset.trim) return;
                     event.stopPropagation();
                     onSelect(clip.id);
                     const originX = event.clientX;
@@ -56,7 +65,50 @@ export function Timeline({ project, time, selectedId, onSelect, onSeek, onMove }
                     window.addEventListener("pointerup", up);
                   }}
                 >
-                  {media?.name ?? (track.id as TrackId)}
+                  <span
+                    className="trim"
+                    data-trim="start"
+                    role="slider"
+                    aria-label="Trim start"
+                    aria-valuemin={0}
+                    aria-valuemax={clip.startTime + clip.duration}
+                    aria-valuenow={clip.startTime}
+                    onPointerDown={(event) => {
+                      event.stopPropagation();
+                      onSelect(clip.id);
+                      const originX = event.clientX;
+                      const origin = clip.startTime;
+                      const move = (ev: PointerEvent) => onTrim(clip.id, "start", origin + (ev.clientX - originX) / PIXELS_PER_SECOND);
+                      const up = () => {
+                        window.removeEventListener("pointermove", move);
+                        window.removeEventListener("pointerup", up);
+                      };
+                      window.addEventListener("pointermove", move);
+                      window.addEventListener("pointerup", up);
+                    }}
+                  />
+                  <span className="clip-name">{media?.name ?? (track.id as TrackId)}</span>
+                  <span
+                    className="trim end"
+                    data-trim="end"
+                    role="slider"
+                    aria-label="Trim end"
+                    aria-valuemin={clip.startTime}
+                    aria-valuenow={clip.startTime + clip.duration}
+                    onPointerDown={(event) => {
+                      event.stopPropagation();
+                      onSelect(clip.id);
+                      const originX = event.clientX;
+                      const origin = clip.startTime + clip.duration;
+                      const move = (ev: PointerEvent) => onTrim(clip.id, "end", origin + (ev.clientX - originX) / PIXELS_PER_SECOND);
+                      const up = () => {
+                        window.removeEventListener("pointermove", move);
+                        window.removeEventListener("pointerup", up);
+                      };
+                      window.addEventListener("pointermove", move);
+                      window.addEventListener("pointerup", up);
+                    }}
+                  />
                 </button>
               );
             })}

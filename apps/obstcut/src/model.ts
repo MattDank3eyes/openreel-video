@@ -58,7 +58,7 @@ export function createProject(name = "Untitled"): Project {
     name,
     createdAt: now,
     modifiedAt: now,
-    settings: { width: 1920, height: 1080, frameRate: 30, sampleRate: 48000, channels: 2 },
+    settings: { width: 1280, height: 720, frameRate: 30, sampleRate: 48000, channels: 2 },
     mediaLibrary: { items: [] },
     timeline: {
       tracks: [emptyTrack("video"), emptyTrack("dialogue"), emptyTrack("music")],

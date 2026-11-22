@@ -26,6 +26,8 @@ OPENREEL_DESKTOP=1 pnpm --filter @obstcut/editor build
 
 `VITE_BASE_PATH` is accepted as an alias of `OPENREEL_BASE_PATH`. `OPENREEL_DESKTOP=1` forces the relative `./` base.
 
+Word-by-word captions load the speech model from the same origin (`models/onnx-community/whisper-tiny/`) so the page can be served with `Cross-Origin-Embedder-Policy: require-corp`. Fetch it before building with `node apps/obstcut/scripts/fetch-whisper.mjs`.
+
 ## Linux AppImage
 
 From a clean tree, with no auto-publish:
